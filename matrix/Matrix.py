@@ -25,3 +25,5 @@ def matrix_multiplication(matrix_a, matrix_b):
 def matrix_multiplication1(matrix_a, matrix_b):
     L = [[sum([matrix_a[i][x] * matrix_b[x][j] for x in range(len(matrix_b))]) for j in range(len(matrix_b[0]))] for i in range(len(matrix_a))]
     print(L)
+
+# 高斯消元
