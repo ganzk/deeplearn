@@ -39,3 +39,87 @@ a.resize(4, 3)
 
 # 拉平
 a.flatten()
+
+
+# 广播
+
+array1 = np.array([1,2,3,4])
+array1.shape
+
+array1 = np.array([1,2,3,4])
+array2 = np.array([[1,1,1],[2,2,2],[3,3,3],[4,4,4]])
+array1 + array2
+array3 = np.array([[[1,1,1],[2,2,2],[3,3,3],[4,4,4]],[[1,1,1],[2,2,2],[3,3,3],[4,4,4]]])
+array1 + array3
+array4 = np.array([1])
+array3 + array4
+
+
+# 正态
+a = np.random.normal(size = (2000,))
+# 平均值
+np.mean(a)
+# 方差
+np.std(a)
+# 求和
+np.sum(a)
+
+# 按照维度求和 从0维度开始 就是从最外层开始
+a = np.arange(12).reshape(3,4)
+np.sum(a, axis=1)
+
+# keepdims 保持维度
+np.sum(a, axis=0, keepdims=True)
+
+# 增加维度
+a = np.array([1,2,3])
+a = a[None,:]  # a =a[None:,]  不变
+a = a[:,None]  # 这也可以加维度
+np.expand_dims(a, axis=0)
+
+# 减少维度
+np.square(a)
+
+
+# 最大
+np.max(a)
+np.maximum(a, 5)
+
+
+np.argmax(a)
+
+
+np.sort(a)
+
+# 矩阵
+mat = np.mat('1,2,3;1,2,3')  # ma 已经删除 使用asmatrix
+mat = np.asmatrix('1,2,3;1,2,3')
+mat.T  # 转置
+
+# where  返回的是序号
+a = np.arange(12).reshape(3, 4)
+np.where(a < 4)
+np.where(a < 5)
+np.where(a < 5, 'a', 'b')
+
+# argwhere
+np.argwhere(a < 4)
+
+# extract 得到的是值
+np.extract(a < 5, a)
+
+# save 保存 只能保存为npy格式数据
+np.save('fff.npy', a)
+b = np.load('fff.npy')
+
+
+
+
+
+
+
+
+
+
+
+
