@@ -497,6 +497,8 @@ https://blog.csdn.net/m0_71746299/article/details/151330283
 
 ### 梯度
 
+https://zhuanlan.zhihu.com/p/261375491
+
 #### 什么是梯度
 
 梯度是一个数学工具，它告诉你：
