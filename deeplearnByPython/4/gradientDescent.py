@@ -27,8 +27,12 @@ def gradient_descent(f, init_x, lr=0.01, step_num=100):
     for i in range(step_num):
         grad = numerical_gradient(f, x)
         x -= lr * grad
-    return
+    return x
 
 # 求 f = x1**2 + x2**3 在（1,1）的梯度
 s = numerical_gradient(function_2, np.array([1.0, 1.0]))
 print(s)
+
+# 求 f = x1**2 + x2**3 在极小值
+a = gradient_descent(function_2, np.array([-3.0, 4.0]), lr=0.1, step_num=100)
+print(a)

@@ -5,7 +5,12 @@ https://blog.csdn.net/weixin_42546496/article/details/88115095
 ## 数学公式表示法
 
 $$
-A = \begin{bmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{bmatrix}+ \begin{vmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{vmatrix}
+A = \begin{matrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{matrix}
++ \begin{bmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{bmatrix}
++ \begin{vmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{vmatrix}
++ \begin{pmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{pmatrix}
++ \begin{Bmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{Bmatrix}
++ \begin{Vmatrix}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9\end{Vmatrix}
 $$
 
 
@@ -15,6 +20,13 @@ $$
 $$
 对称矩阵性质：A = A^T
 
+$$
+  \begin{matrix}
+   1 & 2 & 3 \\
+   4 & 5 & 6 \\
+   7 & 8 & 9
+  \end{matrix} \tag{1}
+$$
 
 
 
