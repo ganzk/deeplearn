@@ -1,6 +1,6 @@
 import numpy as np
 
-
+# 激活层
 class Relu:
     def __init__(self):
         self.mask = None
@@ -31,3 +31,6 @@ class Sigmoid:
     def backward(self, dout):
         dx = dout * (1.0 - self.out) * self.out
         return dx
+
+
+# Affine层  加权求和

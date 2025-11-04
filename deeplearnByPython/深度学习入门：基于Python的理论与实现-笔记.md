@@ -940,6 +940,63 @@ b₂' = 0.2 - 0.5×(-0.00814) ≈ 0.2041
 
 #### 关于前向和反向传播
 
+对于任意线性变换 `y = W × x`：
+
+- 前向：`y = W × x`
+    
+- 反向：`∂L/∂x = Wᵀ × ∂L/∂y`
 
 
 #### 反向传播实现
+
+
+**激活层**
+
+```python
+# 激活层  
+class Relu:  
+    def __init__(self):  
+        self.mask = None  
+  
+    def forward(self, x):  
+        self.mask = (x <= 0)  
+        out = x.copy()  
+        out[self.mask] = 0  
+        return out  
+  
+    def backward(self, dout):  
+        dout[self.mask] = 0  
+        dx = dout  
+        return dx  
+  
+  
+class Sigmoid:  
+    def __init__(self):  
+        self.out = None  
+  
+    # 前向传播  
+    def forward(self, x):  
+        out = 1 / (1 + np.exp(-x))  
+        self.out = out  
+        return out  
+  
+    # 反向传播  
+    def backward(self, dout):  
+        dx = dout * (1.0 - self.out) * self.out  
+        return dx
+```
+
+
+**Affine层 (加权求和)**
+
+对于$Y = X \cdot W + B$
+$$ \begin{aligned} 
+\frac{\partial L}{\partial X} = \frac{\partial L}{\partial Y} \cdot \frac{\partial Y}{\partial X} = \frac{\partial L}{\partial Y} \cdot W^T \\
+\frac{\partial L}{\partial W} = \frac{\partial L}{\partial Y} \cdot \frac{\partial Y}{\partial W} = X^T\cdot\frac{\partial L}{\partial Y}  
+\end{aligned} 
+$$
+
+
+> [!NOTE] 为什么$\frac{\partial Y}{\partial X} = W^T,\frac{\partial Y}{\partial W} = X^T$ ?
+> Contents
+
