@@ -679,10 +679,12 @@ $$
 
 
 
-### 误差反向传播
+## 误差反向传播
 
 
-#### 反向传播
+### 反向传播
+
+#### 反向传播理解
 
 反向传播是神经网络用来​**​高效计算梯度​**​的算法。它的核心思想是：​**​利用链式法则，将损失函数的误差从输出层开始，反向传播到网络的每一层，从而计算出每个参数（权重和偏置）对总误差的贡献程度（也就是梯度）。​**
 
@@ -947,10 +949,10 @@ b₂' = 0.2 - 0.5×(-0.00814) ≈ 0.2041
 - 反向：`∂L/∂x = Wᵀ × ∂L/∂y`
 
 
-#### 反向传播实现
+### 反向传播实现
 
 
-**激活层**
+#### 激活层
 
 ```python
 # 激活层  
@@ -987,7 +989,7 @@ class Sigmoid:
 ```
 
 
-**Affine层 (加权求和)**
+#### Affine层 (加权求和)
 
 对于$Y = X \cdot W + B$
 $$ \begin{aligned} 
@@ -1000,3 +1002,97 @@ $$
 > [!NOTE] 为什么$\frac{\partial Y}{\partial X} = W^T,\frac{\partial Y}{\partial W} = X^T$ ?
 > Contents
 
+**代码实现**
+
+```python 
+class Affine:  
+    def __init__(self, W, b):  
+        self.W = W  
+        self.b = b  
+        self.x = None  
+        self.dW = None  
+        self.db = None  
+        
+    def forward(self, x):  
+        self.x = x  
+        out = np.dot(x, self.W) + self.b  
+        return out  
+        
+    def backward(self, dout):  
+        dx = np.dot(dout, self.W.T)  
+        self.dW = np.dot(self.x.T, dout)  
+        self.db = np.sum(dout, axis=0)  
+        return dx
+```
+
+
+#### 输出层
+
+```python
+# 输出层和损失函数  
+class SoftmaxWithLoss:  
+    def __init__(self):  
+        self.loss = None # 损失  
+        self.y = None    # softmax的输出  
+        self.t = None    # 监督数据（one-hot vector）  
+  
+    def forward(self, x, t):  
+        self.t = t  
+        self.y = softmax(x)  
+        self.loss = cross_entropy_error(self.y, self.t)  
+  
+        return self.loss  
+    def backward(self, dout=1):  
+        batch_size = self.t.shape[0]  
+        dx = (self.y - self.t) / batch_size  
+        return dx
+```
+
+
+#### 最终实现
+
+
+
+## 学习相关
+
+
+### 参数更新
+
+#### SGD
+
+SGD 的全称是 **随机梯度下降**。
+**梯度下降**：就是你用手杖（或凭脚感）感受脚下山坡**最陡峭的下坡方向**，然后向那个方向迈出一步。
+**随机**：SGD 不是在整个数据集上计算梯度，而是在**每次参数更新时，只随机选取一个训练样本**来计算梯度。
+
+**更新公式**
+$$
+\dot W = W - η\frac{\partial L}{\partial W}
+$$
+
+**优点**
+- 速度快，因为计算量小
+- 由于梯度的方向是随机的、嘈杂的，它更容易“跳出”小的坑洼（局部最小值），从而有可能找到更好的（全局）最小值。
+- 在线学习：可以随时用新来的数据更新模型，而不需要重新处理整个历史数据。
+
+**缺点**
+- 因为是只随机选取一个训练样本，所以会导致梯度方向不是整个最小值方向，会成一个“之”字形下降
+- 它会在最小值附近来回跳动，而不是稳稳地停在最优点。
+
+
+> [!NOTE] 批量随机下降（**BGD**）
+> 这意味着算法会遍历**整个训练数据集**，计算所有样本的损失梯度，然后求平均值，最后用这个平均梯度来更新一次模型参数。优点就是方向稳定，朝着目标前进的路径很直接。缺点就是计算缓慢
+> 
+> **折中方法就是使用小批量梯度方法，现在，在深度学习的文献和框架中，当人们说“SGD”时，通常指的就是这种“小批量梯度下降”**。
+
+
+**代码实现**
+```python
+class SGD:  
+    def __init__(self, lr=0.01):  
+        self.lr = lr  
+    def update(self, params, grads):  
+        for key in params.keys():  
+            params[key] -= self.lr * grads[key]
+```
+
+#### Momentum
