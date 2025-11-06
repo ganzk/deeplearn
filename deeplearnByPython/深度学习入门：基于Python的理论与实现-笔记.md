@@ -1056,7 +1056,7 @@ class SoftmaxWithLoss:
 ## 学习相关
 
 
-### 参数更新
+### 参数的更新
 
 #### SGD
 
@@ -1096,3 +1096,127 @@ class SGD:
 ```
 
 #### Momentum
+
+**Momentum（动量）** 是一个在优化算法，尤其是在梯度下降法中广泛使用的概念，它专门用来解决**普通SGD（随机梯度下降）的缺点**。**Momentum（动量）** 是一种通过**引入“惯性”** 来加速梯度下降并减少优化过程震荡的技术。
+
+**更新公式**
+$$
+\begin{aligned}
+v = αv - η\frac{\partial L}{\partial W} \\
+\dot W = W + v 
+\end{aligned}
+$$
+与SGD相似，W表示要更新的权重参数，表示损失函数关于W的梯度，η表示学习率。
+
+
+> [!NOTE] 如何理解**Momentum**
+> 核心就是增加一个动量，动量带有“惯性”，因为动量保存这上一次的梯度，所以不会剧烈震荡，即收敛“之”字形运动，减弱变动程度
+> 对于梯度下降的方向，X轴方法，因为保存上一次，而且是同一个方向，所以会有加速
+> 对于Y轴方向每次梯度相反，上一次的梯度和这一次相反，会导致这一次的Y轴方法减小，所以会收敛
+
+
+**优点**
+1. **加速收敛**：在相关方向上实现更快的下降。
+    
+2. **减少震荡**：平滑优化路径，尤其是在损失函数的“峡谷”地形中。
+    
+3. **帮助逃离局部最优/平坦区**：依靠积累的动量冲过障碍。
+
+
+
+**代码实现**
+
+```python
+class Momentum:  
+    def __init__(self, lr=0.01, momentum=0.9):  
+        self.lr = lr  
+        self.momentum = momentum  
+        self.v = None  
+    def update(self, params, grads):  
+        if self.v is None:  
+            self.v = {}  
+            for key, val in params.items():  
+                self.v[key] = np.zeros_like(val)  
+        for key in params.keys():  
+            self.v[key] = self.momentum*self.v[key] - self.lr*grads[key]  
+            params[key] += self.v[key]
+```
+
+#### AdaGrad
+
+在标准的SGD中，所有参数都使用**同一个全局学习率**。在学习的时候，为了更精细的参数调整，会逐渐减小学习率的值，但是固定的学习率可能不是最优的，所以**AdaGrad（自适应梯度算法）会自动为每个参数调整学习率**
+
+**AdaGrad的核心创新在于：**
+
+- **为每个参数自动计算其专属的学习率**
+    
+- **不常用的参数** → 获得**更大的更新**
+    
+- **常用的参数** → 获得**更小的更新**
+
+
+**更新公式**
+$$
+\begin{aligned}
+h = h + \frac{\partial L}{\partial W} \bigodot \frac{\partial L}{\partial W} \\ \\
+W = W - η \frac{1}{\sqrt{h}} \frac{\partial L}{\partial W}
+\end{aligned}
+$$
+
+
+> [!NOTE] 为何有效
+> h是之前所有梯度的和，h会越来越大，而$\frac{η}{\sqrt{h}}$会越来越小，会导致学习越深入，更新幅度越小
+
+**AdaGrad** 是一种自适应学习率优化算法，它通过：
+
+1. **累积每个参数的历史梯度平方和**
+    
+2. **用这个累积量来自动调整每个参数的学习率**
+    
+3. **让不频繁更新的参数获得更大更新，频繁更新的参数获得更小更新**
+
+
+**优点**
+1. **自动适应不同参数**：无需手动为不同特征设置不同学习率
+    
+2. **适合稀疏数据**：对不频繁出现的特征效果特别好
+    
+3. **减少超参数调优**：学习率自动衰减，无需设计复杂的学习率调度器
+
+
+**缺点**
+1. **学习率单调递减至0**：
+    
+    - 由于 `G_t` 只增不减，学习率 `α/√G_t` 会持续下降
+        
+    - 在训练后期，学习率变得极小，几乎停止更新
+        
+    - 可能**无法收敛到最优解**
+        
+2. **需要设置合适的初始学习率**：
+    
+    - 如果初始 `α` 设置不当，可能一开始学习就太慢
+
+**代码实现**
+
+```python
+class AdaGrad:  
+    def __init__(self, lr=0.01):  
+        self.lr = lr  
+        self.h = None  
+    def update(self, params, grads):  
+        if self.h is None:  
+           self.h = {}  
+           for key, val in params.items():  
+               self.h[key] = np.zeros_like(val)  
+        for key in params.keys():  
+            self.h[key] += grads[key] * grads[key]  
+            # 1e-7 防止除以零  
+            params[key] -= self.lr * grads[key] / (np.sqrt(self.h[key]) + 1e-7)
+```
+
+
+#### RMSProp
+
+
+#### Adam
