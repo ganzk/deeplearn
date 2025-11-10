@@ -11,6 +11,14 @@
 
 ### 激活函数
 
+
+
+
+
+
+
+
+
 ![|425](assets/Pasted%20image%2020251021185521.png)
 **激活函数是神经网络中的一个关键部件，它决定了神经元是否应该被“激活”，并将输入信号进行非线性转换后输出。** 上图中的h(x)就是激活函数，x1,x2加权求和，然后加上偏置b，传入到h(x)中，得到的y就是输出，激活函数都是非线性函数，如果是线性函数的话，多层神经网络就没有意义了，因为多层神经网络就可以用一层网络表示。
 
@@ -1292,9 +1300,6 @@ $$
 
 **不能设置全部为0或为同一个值**，因为如果同一层的所有神经元初始权重相同，那么在反向传播时，它们会计算出完全相同的梯度，并进行完全相同的更新。这意味着这些神经元将永远保持一致，整个层的行为就像单个神经元一样，严重破坏了网络的学习能力。
 
-初始值的设置可以分为以下几种方式：
-
-- **随机初始化**
 
 **随机初始化**
 从一个标准高斯分布（均值0，标准差1）中随机采样，然后乘以一个很小的数（如0.01），**缺点：** 就是对于深层网络，这个“很小的数”是随意选择的，可能效果很差，导致梯度消失
@@ -1341,9 +1346,137 @@ sigmoid函数及其导数图像
 > \end{align}
 > $$
 > 
+> **比如**
+> - 班级A的平均分 = (70+72+75+78+80)/5 = **75分**
+>- 班级B的平均分 = (50+60+75+90+100)/5 = **75分**
+>
+>两个班的平均分都是75分！如果只看平均值，你会认为两个班的成绩水平是一样的。但是班级A的成绩都集中在70-80分之间，比较稳定。班级B的成绩从50分到100分，分布非常广，波动巨大。
+>
+>**标准差**
+>对方差开平方根得到标准差
+>
+>**方差对权重的意义**
+>方差小代表波动小，方差越小代表越聚集
+>方差大代表波动大，方差大代表越分散
+>所以方差既不能太大也不能太小，太大会主导整个模型，导致其他特征被忽略。同时，过大的输入值会使后续神经元迅速进入饱和区（如Sigmoid函数的两端），导致梯度接近于零，从而出现**梯度消失**问题。太小（全为0或者接近0）表示这个特征不提供任何信息，模型无法从中学习。其权重梯度也会很小，导致学习停滞。**所以方差要≈1**
+>
+>**为什么方差要≈1？**
+>方差 ≫ 1时，经过多层连乘，激活值会变得极大，导致梯度爆炸
+>方差 ≪ 1时，信号会迅速衰减，梯度趋近于零
+>Var(y) = n × Var(W) × Var(x)
+>Var(W)：权重的方差
+>Var(X)：输入的方差
+>n：表示输入的维度
+>
+>**输出的方差与输入值有关，那么为什么我们不考虑输入值的方差，而只关注权重的方差？**
+>在讨论权重初始化时，我们通常**隐含地假设输入数据已经被标准化**，对于输入数据我们通过标准化使Var(X)≈1，对于前一层输出，通过BatchNorm等技术，使Var(X)≈1
+
+
+
+
+#### 输入层权重初始值
 
 
 
 #### 隐藏层输出值分布
 
 
+**sigmoid**
+
+```python
+import numpy as np  
+import matplotlib.pyplot as plt  
+  
+def sigmoid(x):  
+    return 1 / (1 + np.exp(-x))  
+  
+x = np.random.randn(1000, 100) # 1000个数据  
+node_num = 100        # 各隐藏层的节点（神经元）数  
+hidden_layer_size = 5 # 隐藏层有5层  
+activations = {}      # 激活值的结果保存在这里  
+for i in range(hidden_layer_size):  
+    if i != 0:  
+        x = activations[i-1]  
+    w = np.random.randn(node_num, node_num) * 1  
+    z = np.dot(x, w)  
+    a = sigmoid(z)   # sigmoid函数  
+    activations[i] = a  
+  
+# 绘制直方图  
+for i, a in activations.items():  
+    plt.subplot(1, len(activations), i + 1)  
+    plt.title(str(i + 1) + "-layer")  
+    plt.hist(a.flatten(), 30, range=(0, 1))  
+plt.show()
+```
+
+运行上面的代码，我们会发现，方差很大，数据都聚集在0和1两边，会导致**梯度消失**
+![[Pasted image 20251110224435.png]]
+将权重的标准差设为0.01，进行相同的实验。实验的代码只需要把设定权重初始值的地方换成下面的代码即可：
+```python
+# w = np.random.randn(node_num, node_num) * 1 
+w = np.random.randn(node_num, node_num) * 0.01
+```
+![[Pasted image 20251110224836.png]]
+这次呈集中在0.5附近的分布。因为不像刚才的例子那样偏向0和1，所以不会发生梯度消失的问题。但是，激活值的分布有所偏向，说明在表现力上会有很大问题。为什么这么说呢？因为如果有多个神经元都输出几乎相同的值，那它们就没有存在的意义了。比如，如果100个神经元都输出几乎相同的值，那么也可以由1个神经元来表达基本相同的事情。因此，激活值在分布上有所偏向会出现“表现力受限”的问题。
+
+然后我们试下**Xavier初始化**，再次修改一下代码
+
+```python
+# w = np.random.randn(node_num, node_num) * 1  
+# w = np.random.randn(node_num, node_num) * 0.01  
+w = np.random.randn(node_num, node_num) / np.sqrt(node_num)
+```
+
+得到下面的图像：
+![[Pasted image 20251110225248.png]]
+我们可以发现，现在的图像就比之前的两次要更友好，友好在不会像第一张，如果用tanh函数会更加友好：
+![[Pasted image 20251110231044.png]]
+
+**ReLU**
+
+Xavier初始值是以激活函数是线性函数为前提而推导出来的。因为sigmoid函数和tanh函数左右对称，且中央附近可以视作线性函数，所以适合使用Xavier初始值。但当激活函数使用ReLU时，一般推荐使用ReLU专用的初始值，也就是Kaiming He等人推荐的初始值，也称为“He初始值”。 当前一层的节点数为n时，He初始值使用标准差为 $\sqrt{2/n}$的高斯分布。当Xavier初始值是$\sqrt{1/n}$时，（直观上）可以解释为，因为ReLU的负值区域的值为0，为了使它更有广度，所以需要2倍的系数。
+
+```python
+import numpy as np  
+import matplotlib.pyplot as plt  
+import math  
+  
+def sigmoid(x):  
+    return 1 / (1 + np.exp(-x))  
+  
+def relu(x):  
+    return np.maximum(0, x)  
+  
+def tanh_math(x):  
+    """使用math模块实现tanh函数"""  
+    return np.tanh(x)  
+  
+x = np.random.randn(1000, 100) # 1000个数据  
+node_num = 100        # 各隐藏层的节点（神经元）数  
+hidden_layer_size = 5 # 隐藏层有5层  
+activations = {}      # 激活值的结果保存在这里  
+for i in range(hidden_layer_size):  
+    if i != 0:  
+        x = activations[i-1]  
+    # w = np.random.randn(node_num, node_num) * 1  
+    # w = np.random.randn(node_num, node_num) * 0.01    # w = np.random.randn(node_num, node_num) / np.sqrt(node_num)    w = np.random.randn(node_num, node_num) / np.sqrt(2 / node_num)  
+    z = np.dot(x, w)  
+    # a = sigmoid(z)   # sigmoid函数  
+    # a = tanh_math(z)  # sigmoid函数  
+    a = relu(z)       # relu函数  
+    activations[i] = a  
+  
+# 绘制直方图  
+for i, a in activations.items():  
+    plt.subplot(1, len(activations), i + 1)  
+    plt.title(str(i + 1) + "-layer")  
+    plt.hist(a.flatten(), 30, range=(-1, 1))  
+plt.show()
+```
+
+![[Pasted image 20251111000637.png]]
+
+
+
+#### Batch Normalization
