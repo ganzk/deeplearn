@@ -169,6 +169,39 @@ print(Z3)
 **总结**
 每一层都是输入乘上权重加上偏置，除了第一层，每一层的输入都是上一层的输出。
 
+
+#### 示意图总结
+
+总结下来就是下面这张图
+![[Pasted image 20251111222919.png]]
+
+上面的图可以用下面的公式表示， 每一行都是一条数据代表着3个特征，一共1000条数据，
+$$
+\begin{aligned}
+A &= X · B \\
+&= 
+\left[\begin{matrix}
+ x_{11} & x_{12} & x_{13} \\
+ x_{21} & x_{22} & x_{23} \\
+ \vdots & \vdots & \vdots \\
+ x_{10001} & x_{10002} & x_{10003} \\
+\end{matrix}\right] 
+
+\left[\begin{matrix}
+ w_{11} & w_{12} & w_{13} \\
+ w_{21} & w_{22} & w_{23} \\
+ w_{31} & w_{32} & w_{33} \\
+\end{matrix}\right] \\
+
+&= \left[\begin{matrix}
+ a_{11} & a_{12} & a_{13} \\
+ a_{21} & a_{22} & a_{23} \\
+ \vdots & \vdots & \vdots \\
+ a_{10001} & a_{10002} & a_{10003} \\
+\end{matrix}\right] 
+\end{aligned}
+$$
+
 ### 输出层
 
 #### 恒等函数
@@ -1479,4 +1512,11 @@ plt.show()
 
 
 
-#### Batch Normalization
+### Batch Normalization
+
+这里我们将激活函数的输出数据称为“激活值”，但是有的文献中会将在层之间流动的数据也称为“激 活值”
+
+
+
+### 正则化
+
