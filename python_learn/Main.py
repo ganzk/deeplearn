@@ -346,8 +346,8 @@ import school as s
 
 
 # 继承和多态
-import animal
-
-cat = animal.Cat()
-cat.run()
+# import animal
+#
+# cat = animal.Cat()
+# cat.run()
 
