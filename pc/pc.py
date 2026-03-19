@@ -1,6 +1,7 @@
 from playwright.sync_api import sync_playwright  # 正确写法
 import time
 import AnalysisHtml
+import  agent
 
 # 安装浏览器驱动
 # 注意：首次使用前需安装 Chromium 浏览器驱动
@@ -94,11 +95,14 @@ def login_and_crawl():
 
             text = AnalysisHtml.extract_main_content(html = page_html)
 
+            content = agent.King_agent(text)
+
             # 10. 保存/输出内容
-            with open("爬取的内容.html", "w", encoding="utf-8") as f:
-                f.write(text)
-            print("📝 内容已保存！核心内容预览：")
-            print(text[:500] + "...")  # 打印前500字预览
+            with open("King解读内容.md", "w", encoding="utf-8") as f:
+                f.write(content)
+            print("📝 内容已保存！")
+            # print("📝 内容已保存！核心内容预览：")
+            # print(text[:500] + "...")  # 打印前500字预览
 
         except Exception as e:
             print(f"❌ 操作出错：{e}")
