@@ -44,9 +44,9 @@ class MyAgentTool(BaseTool):
             # )
             # messages = runtime.state["messages"]
             # 使用 存储（store） 访问跨对话的持久数据。通过 runtime.store 访问存储
-            store = runtime.store
-            user_info = store.get(("users",), 1)
-            print("user_info:" + user_info)
+            # store = runtime.store
+            # user_info = store.get(("users",), 1)
+            # print("user_info:" + user_info)
 
             # a = 1/0
             if dateNum:
@@ -57,6 +57,7 @@ class MyAgentTool(BaseTool):
                 return f"{query} 的天气：晴朗，72°F"
         except Exception as e:
             # 向模型返回自定义错误消息
+            print(e)
             return "检索不可用，请稍后再试."
 
     def _arun(self, query: str, **kwargs: Any) -> str:

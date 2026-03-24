@@ -196,6 +196,11 @@ response = agent.invoke(
 # print(response)
 print(response["messages"][-1].content)
 
+# 短期记忆
+# 使用：需要在创建代理时指定一个 checkpointer，同时在invoke中添加configurable，指定thread_id
+# 在调用大模型的时候有指定的token数量，不能超过token数量，所以需要进行对消息的修剪，
+# trim_messages里面就是对消息的修剪，其中在返回里面的RemoveMessage是删除消息，
+# 还可以将历史消息进行总结然后传到大模型，SummarizationMiddleware就是实现的这个功能
 
 # 长期记忆
 # 记录token
