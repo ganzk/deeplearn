@@ -109,10 +109,14 @@ def user_role_prompt(request: ModelRequest) -> str:
 toolStrategy = ProviderStrategy (ContactInfo)
 
 # 记忆  总结消息
+# 除了下面的参数，还有其他值
+# token_counter: 函数，自定义 token 计数函数。默认为基于字符的计数。
+# summary_prompt: 字符串，自定义提示词模板。如果未指定，则使用内置模板。
+# summary_prefix: 字符串 (默认值: "## Previous conversation summary:")，摘要消息的前缀。
 summarization = SummarizationMiddleware(
             model=basic_model,  # 用于生成摘要的模型
-            max_tokens_before_summary=4000,  # 任一条件触发
-            messages_to_keep=20,  # 触发后保留最近20条原始消息
+            max_tokens_before_summary=4000,  # 数字，触发摘要的 token 阈值。
+            messages_to_keep=20,  # 要保留的最新消息数量，默认20
         )
 
 # 使用自定义AgentState扩展额外字段，默认情况下代理使用 AgentState 来管理短期记忆，AgentState只能保存agent.invoke里面的messages信息
