@@ -13,7 +13,7 @@ TARGET_URL = "https://www.red-ring.cn/group/27593"  # 比如：https://xxx.com/p
 USERNAME = "18754264575"
 PASSWORD = "141425gan"
 
-def login_and_crawl():
+def login_and_crawl(type:str, essence_index:int):
     # 启动 Playwright 并打开浏览器
     with sync_playwright() as p:
         # 1. 启动浏览器（headless=False 显示浏览器窗口，方便调试；True 则后台运行）
@@ -76,13 +76,31 @@ def login_and_crawl():
             page.goto(TARGET_URL)
             page.wait_for_load_state("networkidle")
 
-            #  2026年3月3日
-            # account_login_tab = page.locator('text= 2026年3月10日财经早餐 ').nth(0)
-            # account_login_tab = page.locator('.panel.my-10.por').nth(1)
-            account_login_tab = page.locator('.fz-lg.mb-7.c-0.fwm.text-darker.cup').nth(0)
-            # account_login_tab = page.locator('fz-lg mb-7 c-0 fwm text-darker cup').nth(0)
-            account_login_tab.wait_for(state="visible", timeout=10000)
-            account_login_tab.click()
+
+            if type == "expert":
+                #  2026年3月3日
+                # account_login_tab = page.locator('text= 2026年3月10日财经早餐 ').nth(0)
+                # account_login_tab = page.locator('.panel.my-10.por').nth(1)
+                # account_login_tab = page.locator('.fz-lg.mb-7.c-0.fwm.text-darker.cup').nth(0)
+                # account_login_tab = page.locator('panel.my-10.por').nth(0)
+                # account_login_tab = page.locator('fz-lg mb-7 c-0 fwm text-darker cup').nth(0)
+                account_login_tab = page.locator('.fz-lg.mb-7.c-0.fwm.text-darker.cup').nth(0)
+                account_login_tab.wait_for(state="visible", timeout=10000)
+                account_login_tab.click()
+
+            elif type == "essence":
+                # account_login_tab_essence = page.locator('por py-12').nth(0)
+                essence_theme = page.locator('text=精华').nth(0)
+                essence_theme.wait_for(state="visible", timeout=10000)
+                essence_theme.click()
+
+                account_login_tab = page.locator('text=精华').nth(essence_index)
+                account_login_tab.wait_for(state="visible", timeout=10000)
+                account_login_tab.click()
+                # account_login_tab = page.locator('.post-body.wwb.wbb.px-15.usn').nth(0)
+            else:
+                raise Exception(f"未知文件类型{type}")
+
 
             # 等待5秒钟，等待页面加载完成
             time.sleep(5)
@@ -93,16 +111,24 @@ def login_and_crawl():
             # 提取特定元素的文本（比如你之前要的文章内容）
             # article_content = page.inner_text('.post-body')  # 替换成目标内容的选择器
 
-            text = AnalysisHtml.extract_main_content(html = page_html)
+            if type == "expert":
+                text = AnalysisHtml.extract_main_content(html=page_html)
+            elif type == "essence":
+                text, html_title = AnalysisHtml.extract_main_content(html=page_html, outflag=True)
 
-            content = agent.King_agent(text)
+            content = agent.King_agent(text, type)
 
             # 10. 保存/输出内容
-            with open("King解读内容.md", "w", encoding="utf-8") as f:
-                f.write(content)
-            print("📝 内容已保存！")
-            # print("📝 内容已保存！核心内容预览：")
-            # print(text[:500] + "...")  # 打印前500字预览
+            if type == "expert":
+                with open("King解读内容.md", "w", encoding="utf-8") as f:
+                    f.write(content)
+                print("📝 内容已保存！")
+            elif type == "essence":
+                with open(f"《{html_title}》解读.md", "w", encoding="utf-8") as f:
+                    f.write(content)
+                print("📝 内容已保存！")
+            else:
+                print("未知文章类型")
 
         except Exception as e:
             print(f"❌ 操作出错：{e}")
@@ -115,4 +141,4 @@ def login_and_crawl():
 
 
 if __name__ == "__main__":
-    login_and_crawl()
+    login_and_crawl("essence", 2)
