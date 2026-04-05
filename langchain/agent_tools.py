@@ -94,7 +94,7 @@ def user_role_prompt(request: ModelRequest) -> str:
     """根据用户角色生成系统提示。"""
     ## 还可以将传递的入参，拼接到提示词中去
     print("request.runtime.context:", request.runtime.context)
-    user_role = request.runtime.context.get("user_role", "user")
+    user_role = request.runtime.context.get("user_role", "user") # 第二个参数是   默认值
     base_prompt = "你是一个有帮助的助手。当用户存在多个意图时，请分别为每个独立意图调用工具，而不是试图在一个工具调用中完成所有任务。"
 
     if user_role == "expert":
