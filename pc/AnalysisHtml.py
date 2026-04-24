@@ -12,7 +12,7 @@ except ImportError:
     exit(1)
 
 
-def extract_main_content(html: str, output_path: str = None) -> str:
+def extract_main_content(html: str, outflag: bool = False) -> str:
     """
     从 HTML 文件中提取正文内容。
     正文位于 class 包含 post-body 和 ql-view 的 div 中。
@@ -73,12 +73,18 @@ def extract_main_content(html: str, output_path: str = None) -> str:
 
     result = "\n".join(lines).strip()
 
-    if output_path:
-        out = Path(output_path)
-        out.write_text(result, encoding="utf-8")
-        print(f"正文已保存到: {out}")
+    html_title = "未获取正文"
+    if outflag:
+        div = soup.select_one('.fz-lg.mb-7.c-0.fwm.text-darker')
+        html_title = div.get_text(strip=True)
+        with open(f"{html_title}.txt", "w", encoding="utf-8") as f:
+            f.write(result)
+        print(f"📝 {html_title}正文内容已保存！")
+        # out = Path(output_path)
+        # out.write_text(result, encoding="utf-8")
+        # print(f"正文已保存到: {out}")
 
-    return result
+    return result, html_title
 
 
 if __name__ == "__main__":
